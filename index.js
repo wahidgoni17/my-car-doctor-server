@@ -6,6 +6,7 @@ const {
   ObjectId,
   serialize,
 } = require("mongodb");
+const { query } = require("express");
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 4550;
@@ -50,11 +51,31 @@ async function run() {
     });
 
     // bookings
+
+    app.get('/bookings', async(req, res)=>{
+      let query = {}
+      if(req.query?.email){
+        query = {email : req.query.email}
+      }
+      const result = await bookingCollections.find(query).toArray()
+      res.send(result)
+    })
+
     app.post('/bookings', async(req, res)=>{
         const booking = req.body
-        console.log(booking)
         const result = await bookingCollections.insertOne(booking)
         res.send(result)
+    })
+
+    app.put('booking/:id', async(req, res)=>{
+      const updatedBooking = req.body
+    })
+
+    app.delete('/bookings/:id', async(req, res)=>{
+      const id = req.params.id
+      const query = {_id: new ObjectId(id)}
+      const result = await bookingCollections.deleteOne(query)
+      res.send(result)
     })
 
     // Send a ping to confirm a successful connection
